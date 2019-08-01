@@ -417,6 +417,80 @@ exports.get_photo = async (req, res) => {
     }
 }
 
+exports.stream_video = async (req, res, next) => {
+    const mediaId = req.params.mediaId;
+
+    try {
+        const media = await Media.findById(mediaId);
+        if (media) {
+            const mediaUrl = ARTICLE_PIC_URL + media.mediaUrl;
+            fs.stat(mediaUrl, function (err, stats) {
+                if (err) {
+                    if (err.code === 'ENOENT') {
+                        return res.status(404).send();
+                    }
+                }
+
+                let start;
+                let end;
+                let total = 0;
+                let contentRange = false;
+                let contentLength = 0;
+
+                let range = req.headers.range;
+                if (range) {
+                    let positions = range.replace(/bytes=/, "").split("-");
+                    start = parseInt(positions[0], 10);
+                    total = stats.size;
+                    end = positions[1] ? parseInt(positions[1], 10) : total - 1;
+                    let chunksize = (end - start) + 1;
+                    contentRange = true;
+                    contentLength = chunksize;
+                } else {
+                    start = 0;
+                    end = stats.size;
+                    contentLength = stats.size;
+                }
+
+                if (start <= end) {
+                    let responseCode = 200;
+                    res.setHeader('Accept-Ranges', 'bytes');
+                    res.setHeader('Content-Length', contentLength);
+                    res.setHeader('Content-Type', 'video/mp4');
+                    if (contentRange) {
+                        responseCode = 206;
+                        res.setHeader('Content-Range', "bytes " + start + "-" + end + "/" + total);
+                    }
+
+                    res.statusCode = responseCode;
+
+                    let stream = fs.createReadStream(mediaUrl, { start: start, end: end })
+                        .on("readable", function () {
+                            let chunk;
+                            while (null !== (chunk = stream.read(1024))) {
+                                res.write(chunk);
+                            }
+                        }).on("error", function (err) {
+                            res.end(err);
+                        }).on("end", function (err) {
+                            res.end();
+                        });
+                } else {
+                    res.statusCode = 403;
+                    res.end();
+                }
+            });
+        } else {
+            res.statusCode = 404;
+            res.end("No valid entry found for provided ID");
+        }
+
+    } catch (err) {
+        res.statusCode = 500;
+        res.end('Internal server error');
+    }
+}
+
 exports.get_video_thumbnail = async (req, res) => {
     // media id of post
     const mediaId = req.params.mediaId;

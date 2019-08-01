@@ -46,6 +46,8 @@ router.get('/:arId', checkAuth, ArticleController.get_article_by_id);
 router.post('/', checkAuth, upload.array('media'), ArticleController.create_article);
 //get photo by media id
 router.get('/media/:mediaId', ArticleController.get_photo);
+//stream video by media id
+router.get('/stream/:mediaId', ArticleController.stream_video);
 //get video thumbnail by media id
 router.get('/media/:mediaId/thumbnail', ArticleController.get_video_thumbnail);
 //like article
