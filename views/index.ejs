@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta property="og:site_name" content="PetNetwork">
+
+    <% og_tags.forEach(function({tag_name,content}) { %>
+        <meta property="<%= tag_name %>" content="<%= content %>" />
+    <% }); 
+    %>
+
+    <title>PetNetwork</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Courgette&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"> 
+    <link rel='stylesheet' href='/css/style.css'>
+</head>
+<body>
+    <div class='container'>
+        <div class='inner-container'>
+            <div class='g g-2-3'>
+                 <div class='phone-pad'>
+                     <div>
+                        <img src='/img/phone_pad.png' alt=''/>
+                        <div class='app-bg'>
+                            <img src='/img/app-bg.png' alt=''/>
+                        </div>
+                     </div>
+                 </div>
+                 <div>
+                     <div class='p-2'>
+                        <h5 class='title-one m-0'>Welcome from Pet Network</h5>
+                        <p class='title-content'>Pet Network is an app that try to develop a community for Pet Lovers across the globe 
+                            to take their ways of controlling quality cares to their pets to next level and make 
+                            their lovely pets healthy by sharing or learning ideas and experiences within the community.</p>
+                        <div class='download-link'>
+                            <a class='download-btn mr-2'>
+                                <img src='/img/download-app-android.svg' alt=''/>
+                            </a>
+                            <a class='download-btn'>
+                                <img src='/img/download-app.svg' alt=''/>
+                            </a>
+                        </div>
+                     </div>    
+                 </div>
+            </div>
+        </div> 
+    </div >
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+
+    <script src="/js/deeplink-to-native-app.js"></script>
+
+    <script>
+        _responsive();
+
+        window.onresize = function () {
+            _responsive()
+        }
+
+        function _responsive() {
+            var window_height = window.innerHeight;
+            document.querySelector(".container").style.height = window_height + "px";
+        }
+
+        function getLastURI() {
+            var segment_str = window.location.pathname;
+            var segment_array = segment_str.split('/');
+            var last_segment = segment_array.splice(2);
+
+            if (last_segment.length <= 0) {
+                last_segment = '';
+            }
+
+            var final_url = last_segment.join('/');
+
+            return final_url;
+        }
+
+        !(function ($) {
+            $(document).ready(function () {
+                /** Initialize Deeplinking ***/
+                $(document).ready(function () {
+                    NativeAppLauncher.init({
+                        appLauncherElId: 'open-app-link', // Element Id of App Launcher button.
+                        notSupportedMessage: 'Sorry, you’ll need to use a different browser to do this.',
+                        universalLinkUrl: 'https://api.petnetwork.com',
+                        appUri: 'petnetwork://petnetwork/' + getLastURI(),
+                        androidAppId: 'com.petnetwork',
+                        iOsAppStore: 'https://itunes.apple.com/th/app/muan/id1407196950?l=th&mt=8',
+                        debug: false // Optional
+                        //campaignCode: 'this-is-test-campaign' // optional, this appends campaign on app store url.
+                    });
+                });
+            });
+        })(jQuery);
+
+    </script>
+</body>
+</html>
